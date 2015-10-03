@@ -1,0 +1,24 @@
+html
+    head
+        include head.jade
+        link(rel="stylesheet", href="/css/style.css")
+    body
+        div(id="map", style="display: none; height: 100%")
+        div(id="inputs", class="jumbotron")
+            center
+                    h1 dtour
+                    input(type="text", id="start_location",class="form-control inputs",
+                          placeholder="Starting location")
+                    br
+                    input(type="text", id="start_time" class="form-control inputs",
+                          placeholder="Starting time")
+                    br
+                    input(type="text", id="end_location" class="form-control inputs",
+                          placeholder="Ending location")
+                    a(href="") Advanced Search 
+                    br
+                    button(id="submit-query", class="btn btn-primary inputs").
+                        Submit
+        script(src="/js/scripts.js")
+        script(src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAl1AUh9oQiTgNrNfeLW1RIOLZyzbKXSjA&callback=initMap", async, defer)
+

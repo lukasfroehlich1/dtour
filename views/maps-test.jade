@@ -1,0 +1,36 @@
+html
+    head   
+        script(src="//code.jquery.com/jquery-1.11.3.min.js")
+        script(src="//code.jquery.com/jquery-migrate-1.2.1.min.js")
+        link(rel='stylesheet',href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css')
+        link(rel='stylesheet',href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css')
+        script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js")
+        style.
+            html, body{
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            #map {
+                height: 80%;
+            }
+        title!= title
+    body
+        div(id="toolbar" class="container")
+            div(style="float:left; background-color: red;") 
+                h1 dtour
+            div(style="float:left;")
+                div
+                    button hello
+                div
+                    button goodbye
+        div(id="map", style="background-color: blue")
+        script.
+            var map;
+            function initMap() {
+                map = new google.maps.Map(document.getElementById( 'map' ), {
+                    center: {lat: 17.2380, lng: 132.8810},
+                    zoom: 8
+                });
+            }
+        script(src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAl1AUh9oQiTgNrNfeLW1RIOLZyzbKXSjA&callback=initMap" async defer)
