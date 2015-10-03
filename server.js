@@ -21,21 +21,40 @@ var gmAPI = new GoogleMapsAPI(publicConfig);
 var params = {
     origin: "22 fairmount st, 94131",
     destination: "572 boysen st, 93405",
-    mode: "driving",
+    mode: "driving"
 }
+trip_suggestions = function() {
+
+    gmAPI.directions(params, function(err, results){
+        var steps = results["routes"][0]["legs"][0]["steps"];
+        var dist = results["routes"][0]["legs"][0]["distance"]["value"];
+        var coords = calculate_middle(steps, dist);
+
+        var input = {term: "food",radius_filter: 10 , ll: coords[0] + ',' + coords[1]};
+
+        yelp.search(input, function(error, data) {
+            console.log(error);
+            console.log(data["businesses"][0]);
+        });
+    });
+
+
+}
+
 gmAPI.directions(params, function(err, results){
     var steps = results["routes"][0]["legs"][0]["steps"];
     var dist = results["routes"][0]["legs"][0]["distance"]["value"];
-    var coords = calculateMiddle(steps, dist);
+    var coords = calculate_middle(steps, dist);
 
-    yelp.search(coords, function(error, data) {
-      console.log(error);
-      console.log(data);
+    var input = {term: "food",radius_filter: 10 , ll: coords[0] + ',' + coords[1]};
+
+    yelp.search(input, function(error, data) {
+        console.log(error);
+        console.log(data["businesses"][0]);
     });
-    
 });
 
-calculateMiddle = function(steps, dist){
+calculate_middle = function(steps, dist){
     var cur_dist = 0;
     var middle = dist/2;
     for (i=0; i<steps.length; i++) {
@@ -47,10 +66,9 @@ calculateMiddle = function(steps, dist){
             for (j=0; j<line_points.length-1; j++) {
                 var start = {latitude: line_points[j][0] ,longitude: line_points[j][1]};
                 var end = {latitude: line_points[j+1][0],longitude: line_points[j+1][1]};
-                var travel = geolib.getDistance(start,end);
-                cur_dist += travel;
+                cur_dist += geolib.getDistance(start,end);
                 if (cur_dist > middle) {
-                    return start;
+                    return line_points[j];
                 }
             }
         }
