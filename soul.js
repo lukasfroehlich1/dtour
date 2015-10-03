@@ -34,7 +34,7 @@ trip = function(req, res) {
                 console.log("gmaps returned");
                 callback(null, coords);
             });
-        }
+        },
         function yelp_search(coords, radius, callback) {
             var input = {term: "food", radius_filter: radius, ll: coords[0] + ',' + coords[1]};
             yelp.search(input, function(error, data) {
@@ -56,7 +56,9 @@ trip = function(req, res) {
 var start = "22 fairmount st, 94131";
 var end = "572 boysen st, 93405";
 
-trip_test = function(start, end, radius) {
+trip_test(start,end);
+
+trip_test = function(start, end) {
     var params = {
         origin: start,
         destination: end,
@@ -69,7 +71,6 @@ trip_test = function(start, end, radius) {
         console.log(coords);
     });
 }
-
 
 calculate_middle = function(steps, dist, time){
     var cur_dist = 0;
