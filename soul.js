@@ -56,8 +56,6 @@ trip = function(req, res) {
 var start = "22 fairmount st, 94131";
 var end = "572 boysen st, 93405";
 
-trip_test(start,end);
-
 trip_test = function(start, end) {
     var params = {
         origin: start,
@@ -71,6 +69,8 @@ trip_test = function(start, end) {
         console.log(coords);
     });
 }
+
+trip_test(start,end);
 
 calculate_middle = function(steps, dist, time){
     var cur_dist = 0;
