@@ -1,6 +1,7 @@
 var polyline = require('polyline');
 var geolib = require('geolib');
 var GoogleMapsAPI = require('googlemaps');
+var async = require('async');
 
 var yelp = require("yelp").createClient({
   consumer_key: "BRao3_-71k3UGVBQAOCHAg", 
@@ -18,43 +19,59 @@ var publicConfig = {
 
 var gmAPI = new GoogleMapsAPI(publicConfig);
 
-var params = {
-    origin: "22 fairmount st, 94131",
-    destination: "572 boysen st, 93405",
-    mode: "driving"
-}
-trip_suggestions = function() {
 
+trip = function(req, res) {
+    var start = req["start"];
+    var end = req["end"];
+    var time = req["time"];
+    var radius = 100;
+    async.waterfall([
+        function get_directions(callback) {
+            gmAPI.directions({origin: start, destination: end}, function(err, results){
+                var steps = results["routes"][0]["legs"][0]["steps"];
+                var dist = results["routes"][0]["legs"][0]["distance"]["value"];
+                var coords = calculate_middle(steps, dist);
+                console.log("gmaps returned");
+                callback(null, coords);
+            });
+        }
+        function yelp_search(coords, radius, callback) {
+            var input = {term: "food", radius_filter: radius, ll: coords[0] + ',' + coords[1]};
+            yelp.search(input, function(error, data) {
+                console.log("yelp returned");
+                callback(null, data["businesses"][0]);
+            });
+        }
+    ],function (err,results) {
+        setTimeout(function() {
+            console.log("end finished");
+            res.send({mid_coords: results});
+        },0);
+    });
+};
+
+
+
+
+var start = "22 fairmount st, 94131";
+var end = "572 boysen st, 93405";
+
+trip_test = function(start, end, radius) {
+    var params = {
+        origin: start,
+        destination: end,
+        mode: "driving"
+    }
     gmAPI.directions(params, function(err, results){
         var steps = results["routes"][0]["legs"][0]["steps"];
         var dist = results["routes"][0]["legs"][0]["distance"]["value"];
         var coords = calculate_middle(steps, dist);
-
-        var input = {term: "food",radius_filter: 10 , ll: coords[0] + ',' + coords[1]};
-
-        yelp.search(input, function(error, data) {
-            console.log(error);
-            console.log(data["businesses"][0]);
-        });
+        console.log(coords);
     });
-
-
 }
 
-gmAPI.directions(params, function(err, results){
-    var steps = results["routes"][0]["legs"][0]["steps"];
-    var dist = results["routes"][0]["legs"][0]["distance"]["value"];
-    var coords = calculate_middle(steps, dist);
 
-    var input = {term: "food",radius_filter: 10 , ll: coords[0] + ',' + coords[1]};
-
-    yelp.search(input, function(error, data) {
-        console.log(error);
-        console.log(data["businesses"][0]);
-    });
-});
-
-calculate_middle = function(steps, dist){
+calculate_middle = function(steps, dist, time){
     var cur_dist = 0;
     var middle = dist/2;
     for (i=0; i<steps.length; i++) {
@@ -75,3 +92,4 @@ calculate_middle = function(steps, dist){
     }
     return -1;
 }
+
