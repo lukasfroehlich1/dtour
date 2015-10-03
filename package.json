@@ -1,0 +1,27 @@
+{
+  "name": "dtour",
+  "version": "1.0.0",
+  "description": "A road trip planner application",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lukasfroehlich1/dtour.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lukasfroehlich1/dtour/issues"
+  },
+  "homepage": "https://github.com/lukasfroehlich1/dtour",
+  "dependencies": {
+    "express": "^4.13.3",
+    "geolib": "^2.0.18",
+    "googlemaps": "^1.0.2",
+    "polyline": "^0.2.0",
+    "yelp": "^0.2.0"
+  }
+}
