@@ -1,3 +1,4 @@
+var infowindows = [];
 $('#submit-query').click( function() {
     $('#map').show();
     $('#inputs').hide();
@@ -16,13 +17,26 @@ $('#submit-query').click( function() {
                                                data['start']['lng']);
             var end = new google.maps.LatLng(data['end']['lat'],
                                              data['end']['lng']);
-            var stop = new google.maps.LatLng(data['locations']['location']['coordinate']['latitude'],
-                                              data['locations']['location']['coordinate']['longitude']);
-            var middle = new google.maps.LatLng(data['search_coords']['lat'],
-                                                data['search_coords']['lng'])
+
             displayRoute(start, end);
-            addMarker(stop, data['locations']['name']);
-            addMarker(middle, 'Middle');
+            $.each(data['found_locations'], function( index, value ) {
+                if ( 'business' in value )
+                {
+                    var stop = new google.maps.LatLng(value['business']['location']['coordinate']['latitude'],
+                                                      value['business']['location']['coordinate']['longitude']);
+                    var marker = addMarker(stop, value['business']['name']);
+                    infowindows.push(custom_info_window(value['business']));
+                    var info_window = infowindows[infowindows.length-1];
+                    marker.addListener('click', function() {
+                        $.each(infowindows, function(index, value) {
+                            value.close();
+                        });
+                        info_window.open(map, marker);
+                    });
+                }
+                var point = new google.maps.LatLng(value['lat'], value['lng']);
+                addDumbMarker(point, value['type']);
+            });
         },
         failure: function() {
             alert('failure');
@@ -50,12 +64,43 @@ function displayRoute(start, end) {
     });
 }
 
-function addMarker(stopLatLng, name) {
-    var marker = new google.maps.Marker({
-        position: stopLatLng,
+function addMarker(stoplatlng, name) {
+    return (new google.maps.Marker({
+        position: stoplatlng,
         map: map,
         title: name
+    }));
+}
+var image = 'http://icons.iconarchive.com/icons/thiago-silva/palm/16/Google-Maps-icon.png';
+function addDumbMarker(stoplatlng, name) {
+    return (new google.maps.Marker({
+        position: stoplatlng,
+        map: map,
+        title: name,
+        icon: image
+    }));
+}
+
+function custom_info_window(business, marker) {
+    var categories = '';
+    $.each(business['categories'], function(index, value) {
+        if( index > 2 ){
+            categories += '';
+        }
+        else {
+            categories = categories + value[0] + ", ";
+        }
     });
+    var content_string = "<div id='content'>"+
+                         "<div id='siteNotice'></div>"+
+                         "<a href="+business['url']+">"+business['name']+"</a><br />"+
+                         "<div id='bodyContent'>"+
+                         "Rating: " + business['rating']+"<br />"+
+                         "Type: "+ categories+ "..."+
+                         "</div>";
+    return (new google.maps.InfoWindow({
+        content: content_string
+    }));
 }
 
 var map;
