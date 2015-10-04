@@ -41,10 +41,104 @@ calculate_middle = function(steps, dist, time){
     return -1;
 }
 
+var legit_times = ["0700","0800","0900","1100","1200","1300","1800","1900","2000","2100"];
+
+find_next_time = function(init_time) {
+    console.log(legit_times[10]);
+    var next_time_slot = init_time;
+    var done = false;
+    while (done == false) {
+        for (i=0; i<legit_times.length; i++) {
+            var ltime = Number(legit_times[i]);
+            if (ltime == next_time_slot) {
+                console.log(ltime);
+                return i;
+                done = true;
+            }
+            next_time_slot = (next_time_slot + 1) % 2400;
+        }
+    }
+    return -1;
+}
+
+convert_hour2sec = function(time) {
+    var hr = Number(time.substr(0,2));
+    var min = Number(time.substr(2,4));
+    return min*60 + hr*3600;
+}
+
+var legit_times_s = [];
+
+for (i=0; i<legit_times.length; i++) {
+    legit_times_s.push(convert_hour2sec(legit_times[i]));
+}
+
+time_coords = function(steps, time, target_time, date_num) {
+    var duration = convert_hour2sec(time);
+    for (i=0; i<steps.length; i++) {
+        duration += steps[i]["duration"]["value"];
+        if (duration > target_time) {
+            duration -= steps[i]["duration"]["value"];
+            var cur_step = steps[i];
+            var length_step = cur_step["distance"]["value"];
+            var time_step = cur_step["duration"]["value"];
+            var rate = length_step/time_step;
+            var remaining = target_time - duration;
+            var remaining_dist = rate * remaining;
+            var line_points = polyline.decode(cur_step['polyline']['points']);
+            var step_dist = 0;
+            for (j=0; j<line_points.length-1; j++) {
+                var start = {latitude: line_points[j][0] ,longitude: line_points[j][1]};
+                var end = {latitude: line_points[j+1][0],longitude: line_points[j+1][1]};
+                step_dist += geolib.getDistance(start,end);
+                if (step_dist > remaining_dist) {
+                    return {"lat": line_points[j][0],
+                            "lng": line_points[j][1]}
+                }
+            }
+        }
+    }
+    return null;
+}
+
+var food_time = {"0700":"breakfast",
+                 "0800":"breakfast",
+                 "0900":"breakfast",
+                 "1100":"lunch",
+                 "1200":"lunch",
+                 "1300":"lunch",
+                 "1800":"dinner",
+                 "1900":"dinner",
+                 "2000":"dinner",
+                 "2100":"dinner"};
+
+calculate_time_stop = function(steps, time) {
+    var next_inc = find_next_time(time);
+    var target_time = legit_times_s[next_inc];
+    var list_of_stops = [];
+    var date_num = 0;
+    console.log(steps.length);
+    while (true) {
+        var result = time_coords(steps, time, target_time, date_num);
+        if (result == null) {
+            break;
+        }
+        var time = legit_times[next_inc];
+        result["time"] = time;
+        result["type"] = food_time[time];
+        console.log(result["type"]);
+        list_of_stops.push(result);
+        next_inc = (next_inc + 1) % legit_times.length;
+        target_time += legit_times_s[next_inc];
+    }
+    return list_of_stops;
+}
+
 module.exports = {
     trip: function(req, res) {
         var start = req.body.start_location;
         var end = req.body.end_location;
+        //this time should be astring
         var time = req.body.start_time;
         var radius = 10000;
         var search_coords;
