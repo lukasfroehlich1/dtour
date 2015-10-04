@@ -3,6 +3,8 @@ var geolib = require('geolib');
 var GoogleMapsAPI = require('googlemaps');
 var async = require('async');
 var request = require('request');
+
+
 var yelp = require("yelp").createClient({
   consumer_key: "BRao3_-71k3UGVBQAOCHAg", 
   consumer_secret: "v57ivrvRCFpmjyoHrAVvyNMsBK8",
@@ -21,7 +23,7 @@ var publicConfig = {
 
 var gmAPI = new GoogleMapsAPI(publicConfig);
 
-//curently used
+//curently unused
 calculate_middle = function(steps, dist, time){
     var cur_dist = 0;
     var middle = dist/2;
@@ -44,7 +46,10 @@ calculate_middle = function(steps, dist, time){
     return -1;
 }
 
-var legit_times = ["0700","0800","0900","1100","1200","1300","1800","1900","2000","2100"];
+var legit_times = ["0700","0800","0900",
+                   "1100","1200","1300",
+                   "1800","1900","2000",
+                   "2100","2200","2300","2359"];
 
 find_next_time = function(init_time) {
     console.log(legit_times[10]);
@@ -76,7 +81,21 @@ for (i=0; i<legit_times.length; i++) {
     legit_times_s.push(convert_hour2sec(legit_times[i]));
 }
 
-time_coords = function(steps, time, target_time, date_num) {
+var food_time = {"0700":"breakfast",
+                 "0800":"breakfast",
+                 "0900":"breakfast",
+                 "1100":"lunch",
+                 "1200":"lunch",
+                 "1300":"lunch",
+                 "1800":"dinner",
+                 "1900":"dinner",
+                 "2000":"dinner",
+                 "2100":"dinner",
+                 "2200":"hotel",
+                 "2300":"hotel",
+                 "2359":"hotel"};
+
+time_coords = function(steps, time, target_time) {
     var duration = convert_hour2sec(time);
     for (i=0; i<steps.length; i++) {
         duration += steps[i]["duration"]["value"];
@@ -104,25 +123,13 @@ time_coords = function(steps, time, target_time, date_num) {
     return null;
 }
 
-var food_time = {"0700":"breakfast",
-                 "0800":"breakfast",
-                 "0900":"breakfast",
-                 "1100":"lunch",
-                 "1200":"lunch",
-                 "1300":"lunch",
-                 "1800":"dinner",
-                 "1900":"dinner",
-                 "2000":"dinner",
-                 "2100":"dinner"};
-
 calculate_time_stop = function(steps, time) {
     var next_inc = find_next_time(time);
     var target_time = legit_times_s[next_inc];
     var list_of_stops = [];
-    var date_num = 0;
     console.log(steps.length);
     while (true) {
-        var result = time_coords(steps, time, target_time, date_num);
+        var result = time_coords(steps, time, target_time);
         if (result == null) {
             break;
         }
@@ -130,7 +137,7 @@ calculate_time_stop = function(steps, time) {
         result["time"] = time;
         result["type"] = food_time[time];
         //this needs to be fixed with day
-        result["day_of_week"] = 1;
+        //result["day_of_week"] = 1;
         list_of_stops.push(result);
         //each time this mods need to increase the day by one
         next_inc = (next_inc + 1) % legit_times.length;
@@ -140,8 +147,6 @@ calculate_time_stop = function(steps, time) {
     return list_of_stops;
 }
 
-calculate_stop_locations = function(steps, time) {
-}
 
 module.exports = {
     trip: function(req, res) {
