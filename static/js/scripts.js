@@ -18,8 +18,11 @@ $('#submit-query').click( function() {
                                              data['end']['lng']);
             var stop = new google.maps.LatLng(data['locations']['location']['coordinate']['latitude'],
                                               data['locations']['location']['coordinate']['longitude']);
+            var middle = new google.maps.LatLng(data['search_coords']['lat'],
+                                                data['search_coords']['lng'])
             displayRoute(start, end);
             addMarker(stop, data['locations']['name']);
+            addMarker(middle, 'Middle');
         },
         failure: function() {
             alert('failure');
