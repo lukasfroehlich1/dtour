@@ -19,6 +19,7 @@ var publicConfig = {
 
 var gmAPI = new GoogleMapsAPI(publicConfig);
 
+//curently used
 calculate_middle = function(steps, dist, time){
     var cur_dist = 0;
     var middle = dist/2;
@@ -126,10 +127,12 @@ calculate_time_stop = function(steps, time) {
         var time = legit_times[next_inc];
         result["time"] = time;
         result["type"] = food_time[time];
-        console.log(result["type"]);
+        //this needs to be fixed with day
+        result["day_of_week"] = 1;
         list_of_stops.push(result);
+        //each time this mods need to increase the day by one
         next_inc = (next_inc + 1) % legit_times.length;
-        target_time += legit_times_s[next_inc];
+        target_time += legit_times_s[next_inc] + 3600;
     }
     return list_of_stops;
 }
@@ -145,30 +148,14 @@ module.exports = {
         var found_locations = [];
         async.waterfall([
             function get_directions(callbackOrder) {
-                var time; 
-                search_coords = [
-                    {
-                        lat: '32.7150',
-                        lng: '-117.1625',
-                        type: 'breakfast',
-                        time: '0800',
-                        day_of_week: 1,
-                    },
-                    {
-                        lat: '34.0500',
-                        lng: '-118.2500',
-                        type: 'lunch',
-                        time: '1200',
-                        day_of_week: 1,
-                    },
-                    {
-                        lat: '37.7833',
-                        lng: '-122.4167',
-                        type: 'dinner',
-                        time: '1900',
-                        day_of_week: 1,
-                    }];
-                callbackOrder(null, search_coords);
+                gmAPI.directions({origin: start, destination: end}, function(err, results){
+                    console.log(err);
+                    var steps = results["routes"][0]["legs"][0]["steps"];
+                    start = steps[0]["start_location"];
+                    end = steps[steps.length-1]["end_location"]; 
+                    search_coords = calculate_time_stop(steps, time);
+                    callbackOrder(null, search_coords);
+                });
             },
             function search(coords, callbackOrder) {
                 async.each(coords, function(coord, callbackCoord) {
