@@ -24,7 +24,7 @@ $('#submit-query').click( function() {
                 {
                     var stop = new google.maps.LatLng(value['business']['location']['coordinate']['latitude'],
                                                       value['business']['location']['coordinate']['longitude']);
-                    var marker = addMarker(stop, value['business']['name']);
+                    var marker = addMarker(stop, value['time']);
                     infowindows.push(custom_info_window(value['business']));
                     var info_window = infowindows[infowindows.length-1];
                     marker.addListener('click', function() {
@@ -34,8 +34,6 @@ $('#submit-query').click( function() {
                         info_window.open(map, marker);
                     });
                 }
-                var point = new google.maps.LatLng(value['lat'], value['lng']);
-                addDumbMarker(point, value['time']);
             });
         },
         failure: function() {
@@ -84,7 +82,7 @@ function addDumbMarker(stoplatlng, name) {
 function custom_info_window(business, marker) {
     var categories = '';
     $.each(business['categories'], function(index, value) {
-        if( index > 2 ){
+        if( index > 1 ){
             categories += '';
         }
         else {

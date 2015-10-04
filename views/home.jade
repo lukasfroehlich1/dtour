@@ -4,7 +4,11 @@ html
         link(rel="stylesheet", href="/css/style.css")
     body
         div(id="map-displays", style="display: none;")
-            div(id="location-queue" style="width: 400px; height: 70%; background-color: gray; margin-left: 100px; margin-top: 100px; position:absolute; z-index: 99")
+            div(id="location-container")
+                ul(id="location-queue", class="list-group")
+                    li(class="list-group-item")
+                        center
+                            b pit stops
             div(id="map", style="height: 100%")
         div(id="inputs", class="jumbotron")
             center
@@ -17,10 +21,10 @@ html
                     br
                     input(type="text", id="end_location" class="form-control inputs",
                           placeholder="Ending location")
-                    a(href="") Advanced Search 
+                    a(href="") advanced search 
                     br
                     button(id="submit-query", class="btn btn-primary inputs").
-                        Submit
+                        submit
         script(src="/js/scripts.js")
         script(src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAl1AUh9oQiTgNrNfeLW1RIOLZyzbKXSjA&callback=initMap", async, defer)
 

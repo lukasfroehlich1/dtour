@@ -16,6 +16,18 @@ input[type='text']{
   transition: border 0.3s;
 }
 
+#location-container{
+  width: 400px;
+  height: 70%; 
+  background-color: rgba(150, 150, 150, .7);
+  border: solid 1px #707070;
+  box-shadow: 0 0 5px 1px #969696;
+  margin-left: 100px;
+  margin-top: 100px;
+  position: absolute;
+  z-index: 99;
+}
+
 input[type='text']:focus,
 input[type='text'].focus {
   border-bottom: solid 2px #969696;
