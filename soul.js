@@ -52,9 +52,13 @@ module.exports = {
         var radius = 100;
         async.waterfall([
             function get_directions(callback) {
-                gmAPI.directions({origin: start, destination: end}, function(err, results){
+                var time 
+                gmAPI.directions({origin: start, destination: end }, function(err, results){
                     console.log(err);
+                    console.log(results["routes"][0]["legs"][0]["steps"]);
                     var steps = results["routes"][0]["legs"][0]["steps"];
+                    start = steps[0]["start_location"];
+                    end = steps[steps.length-1]["end_location"]; 
                     var dist = results["routes"][0]["legs"][0]["distance"]["value"];
                     var coords = calculate_middle(steps, dist);
                     console.log("gmaps returned");
@@ -66,7 +70,6 @@ module.exports = {
                 yelp.search(input, function(error, data) {
                     console.log("yelp returned");
                     console.log(data);
-
                     callback(null, data["businesses"][0]);
                 });
             }
