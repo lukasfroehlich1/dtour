@@ -50,6 +50,7 @@ module.exports = {
         console.log(end);
         console.log(time);
         var radius = 100;
+        var search_coords;
         async.waterfall([
             function get_directions(callback) {
                 var time 
@@ -60,28 +61,24 @@ module.exports = {
                     start = steps[0]["start_location"];
                     end = steps[steps.length-1]["end_location"]; 
                     var dist = results["routes"][0]["legs"][0]["distance"]["value"];
-                    var coords = calculate_middle(steps, dist);
-                    console.log("gmaps returned");
-                    callback(null, coords);
+                    search_coords = calculate_middle(steps, dist);
+                    callback(null, search_coords);
                 });
             },
             function yelp_search(coords, callback) {
                 var input = {term: "food", radius_filter: radius, ll: coords[0] + ',' + coords[1]};
                 yelp.search(input, function(error, data) {
-                    console.log("yelp returned");
-                    console.log(data);
                     callback(null, data["businesses"][0]);
                 });
             }
         ],function (err,results) {
             if (err) {
                 console.log(err);
-                res.json({error: err});
+                res.send(err);
             }
             else 
             setTimeout(function() {
-                console.log("end finished");
-                res.json({start: start, end: end, locations: results});
+                res.json({start: start, end: end,search_coords: {"lat": search_coords[0], "lng": search_coords[1]}, locations: results});
             },0);
         });
     }
