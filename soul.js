@@ -46,7 +46,7 @@ module.exports = {
         var start = req.body.start_location;
         var end = req.body.end_location;
         var time = req.body.start_time;
-        var radius = 10000;
+        var radius = 8046;
         var search_coords;
         async.waterfall([
             function get_directions(callback) {
