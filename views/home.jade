@@ -3,16 +3,23 @@ html
         include head.jade
         link(rel="stylesheet", href="/css/style.css")
     body
+        div(id="loading-container", style="display:none; padding: 300px; height: 100%; background-color: #0dc5c1")
+            center
+                h2 Watching Paint Dry
+            div(class="loader")
         div(id="map-displays", style="display: none;")
             div(id="location-container")
                 ul(id="location-queue", class="list-group")
                     li(class="list-group-item")
                         center
+                            b new search
+                    li(class="list-group-item")
+                        center
                             b pit stops
             div(id="map", style="height: 100%")
-        div(id="inputs", class="jumbotron")
+        div(id="inputs", class="jumbotron", style="height: 100%")
             center
-                    h1 dtour
+                    h1(style="color: #0dc5c1") dtour
                     input(type="text", id="start_location",class="form-control inputs",
                           placeholder="Starting location")
                     br
@@ -21,7 +28,7 @@ html
                     br
                     input(type="text", id="end_location" class="form-control inputs",
                           placeholder="Ending location")
-                    a(href="") advanced search 
+                    //a(href="") advanced search 
                     br
                     button(id="submit-query", class="btn btn-primary inputs").
                         submit

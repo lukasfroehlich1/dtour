@@ -153,8 +153,11 @@ module.exports = {
         var end = req.body.end_location;
         //this time should be astring
         var time = req.body.start_time;
-        var radius = 10000;
+        var radius = 3000;
         var search_coords;
+        if (!start || !end || !time) {
+            return res.status("404").send("Not found");
+        }
         var found_locations = [];
         async.waterfall([
             function get_directions(callbackOrder) {
@@ -170,7 +173,7 @@ module.exports = {
             },
             function search(coords, callbackOrder) {
                 async.each(coords, function(coord, callbackCoord) {
-                    var input = {term: coord['type'], radius_filter: radius, ll: coord['lat'] + ',' + coord['lng']};
+                    var input = {category_filter: 'restaurants', radius_filter: radius, ll: coord['lat'] + ',' + coord['lng']};
                     console.log("Starting checks for time: %s", coord['time']);
                     async.waterfall([
                         function yelp_api(callbackSearch) {
@@ -178,88 +181,15 @@ module.exports = {
                                 if (error) {
                                     console.log(error);
                                 }
-                                console.log("Number of business from list %s %d", coord['time'], data["businesses"].length);
+                                console.log("Number of business from list %s %d.", coord['time'], data['businesses'].length);
                                 callbackSearch(null, data["businesses"][0]);
                             });
                         },
-                        function google_places(businesses, callbackSearch) {
-                            if (businesses) {
-                                callbackSearch(null, businesses);
-                            }
-                            else{
-                                async.detectSeries( businesses, function(business, done) {
-                                    async.waterfall([
-                                        function places_search(callbackIsOpen) {
-                                            var latlng = business['location']['coordinate']['latitude'] +","+
-                                                         business['location']['coordinate']['longitude'];
-                                            //console.log('Started running for business %s %s.', business['name'], latlng);
-                                            request('https://maps.googleapis.com/maps/api/place/nearbysearch/json?location='+
-                                                latlng+'&radius=100&name='+business['name']
-                                                +'&key='+gapi_key,
-                                                function(error, response, body){
-                                                    if(error) {
-                                                        return console.log(error);
-                                                    }
-                                                    if(response.statusCode !== 200) {
-                                                        return console.log('Invalid Status Code Returned');
-                                                    }
-                                                    //console.log(body);
-                                                    callbackIsOpen(null, JSON.parse(body));
-                                            });
-                                        },
-                                        function places_details(places, callbackIsOpen) {
-                                            if( !places ){
-                                                callbackIsOpen(null, false);
-                                            }
-                                            else {
-                                                console.log('  Places: %s : %s', business['name'], coord['time']);
-                                                if( places['results'].length != 0 ){
-                                                    var params = {
-                                                        placeid: places['results'][0]['place_id'],
-                                                    };
-                                                    gmAPI.placeDetails( params, function(err, results) {
-                                                        if(err) {
-                                                            console.log(err);
-                                                        }
-                                                        //console.log(results);
-                                                        if ( 'opening_hours' in results['result'] ) {
-                                                            var time_open = results['result']['opening_hours']['periods'][coord['day_of_week']];
-                                                            callbackIsOpen(null, 
-                                                                           time_open['close']['time'] > coord['time'] &&
-                                                                           time_open['open']['time'] < coord['time']);
-                                                        }
-                                                        else{
-                                                            callbackIsOpen(null, false);
-                                                        }
-                                                    });
-                                                }
-                                                else {
-                                                    callbackIsOpen(null, false);
-                                                }
-                                            }
-                                        }
-                                    ], function(err, result){
-                                        if (err) {
-                                            console.log(" is_open_wf_end:: %s.", err);
-                                        }
-                                        //console.log('Finished running for business %s.', business['name']);
-                                        done(result);
-                                    });
-                                },
-                                function(result){
-                                    if (result) {
-                                        console.log("Business for time slot %s is %s.", coord['time'], result['name']);
-                                        callbackSearch(null, result);
-                                    }
-                                    else {
-                                        console.log("Error did not find any valid result for time: %s", coord['time']);
-                                        callbackSearch(null);
-                                    }
-                                });
-                            }
-                        },
                     ], function (err, results) {
-                        console.log("Finished calls for %s", coord['time']);
+                        if (err) {
+                            console.log(err);
+                        }
+                        console.log("Finished calls for %s. Selected %s.", coord['time'], 'lol');
                         coord['business'] = results;
                         //console.log(coord);
                         found_locations.push(coord);

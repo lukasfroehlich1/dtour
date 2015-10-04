@@ -1,8 +1,7 @@
 var infowindows = [];
 $('#submit-query').click( function() {
-    $('#map-displays').show();
     $('#inputs').hide();
-    google.maps.event.trigger(map, 'resize');
+    $('#loading-container').show();
     $.ajax({
         url: "/api",
         method: "POST",
@@ -35,13 +34,20 @@ $('#submit-query').click( function() {
                     });
                 }
             });
+            $('#loading-container').hide();
+            $('#map-displays').show();
+            google.maps.event.trigger(map, 'resize');
         },
         failure: function() {
             alert('failure');
+            $('#loading-container').hide();
+            $('#inputs').show();
         },
         error: function() {
             alert("Sorry could not process result yet");
-        }
+            $('#loading-container').hide();
+            $('#inputs').show();
+        },
     });
 });
 
@@ -79,6 +85,11 @@ function addDumbMarker(stoplatlng, name) {
     }));
 }
 
+function test(pkt) {
+    var json = JSON.parse(pkt);
+    $('#location-queue').append("<li class='list-group-item'><img class='thumb' src='"+json['snippet_img_url']+"'/>Hello</li>");
+}
+
 function custom_info_window(business, marker) {
     var categories = '';
     $.each(business['categories'], function(index, value) {
@@ -95,7 +106,10 @@ function custom_info_window(business, marker) {
                          "<div id='bodyContent'>"+
                          "Rating: <img src='" + business['rating_img_url']+"'/><br />"+
                          "Type: "+ categories+ "..."+"<br />"+
-                         "<button class='btn btn-primary' onclick=''>Add</button>"+
+                         "<button class='btn btn-primary' onclick='test("+'"'+'hello'+'"'+")'>Test</button>"+
+                         //"<button class='btn btn-primary' onclick=\'function(){$(\"#location-queue\").append(<li class=\"list-group-item\">"+
+                         //"<img class=\"thumb\" src=\""+business['snippet_img_url']+
+                         //"\" /> <span class=\"thumb_text\">"+business['name']+"</span></li>);alert(\"hello\");}\'>Add</button>"+
                          "</div>";
     return (new google.maps.InfoWindow({
         content: content_string
