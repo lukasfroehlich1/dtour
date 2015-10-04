@@ -77,6 +77,8 @@ time_coords = function(steps, time, target_time, date_num) {
     var duration = convert_hour2sec(time);
     for (i=0; i<steps.length; i++) {
         duration += steps[i]["duration"]["value"];
+        console.log("duration " + duration);
+        console.log("target_time " + target_time);
         if (duration > target_time) {
             duration -= steps[i]["duration"]["value"];
             var cur_step = steps[i];
@@ -120,13 +122,14 @@ calculate_time_stop = function(steps, time) {
     var date_num = 0;
     console.log(steps.length);
     while (true) {
+
         var result = time_coords(steps, time, target_time, date_num);
         if (result == null) {
             break;
         }
-        var time = legit_times[next_inc];
-        result["time"] = time;
-        result["type"] = food_time[time];
+        var temp_time = legit_times[next_inc];
+        result["time"] = temp_time;
+        result["type"] = food_time[temp_time];
         //this needs to be fixed with day
         result["day_of_week"] = 1;
         list_of_stops.push(result);
@@ -134,20 +137,15 @@ calculate_time_stop = function(steps, time) {
         //each time this mods need to increase the day by one
         next_inc = (next_inc + 1) % legit_times.length;
         day_inc++;
-        var day = parseInt(day_inc / legit_times.length);
+        var day = parseInt((day_inc-1) / legit_times.length);
         console.log("day " + day);
         target_time = legit_times_s[next_inc] + day*86400;
 
-
-
-        console.log(target_time);
     }
     console.log(list_of_stops);
     return list_of_stops;
 }
 
-calculate_stop_locations = function(steps, time) {
-}
 
 module.exports = {
     trip: function(req, res) {
