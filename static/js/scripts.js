@@ -12,7 +12,14 @@ $('#submit-query').click( function() {
             end_location: $('#end_location').val(),
         },
         success: function(data) {
-            alert(JSON.stringify(data));
+            var start = new google.maps.LatLng(data['start']['lat'],
+                                               data['start']['lng']);
+            var end = new google.maps.LatLng(data['end']['lat'],
+                                             data['end']['lng']);
+            var stop = new google.maps.LatLng(data['locations']['location']['coordinate']['latitude'],
+                                              data['locations']['location']['coordinate']['longitude']);
+            displayRoute(start, end);
+            addMarker(stop, data['locations']['name']);
         },
         failure: function() {
             alert('failure');
@@ -22,6 +29,31 @@ $('#submit-query').click( function() {
         }
     });
 });
+
+function displayRoute(start, end) {
+    var directionsDisplay = new google.maps.DirectionsRenderer();
+    directionsDisplay.setMap(map);
+
+    var request = {
+        origin: start,
+        destination: end,
+        travelMode: google.maps.TravelMode.DRIVING
+    };
+    var directionsService = new google.maps.DirectionsService();
+    directionsService.route(request, function(response, status) {
+        if (status == google.maps.DirectionsStatus.OK) {
+            directionsDisplay.setDirections(response);
+        }
+    });
+}
+
+function addMarker(stopLatLng, name) {
+    var marker = new google.maps.Marker({
+        position: stopLatLng,
+        map: map,
+        title: name
+    });
+}
 
 var map;
 function initMap() {
