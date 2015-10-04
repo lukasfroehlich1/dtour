@@ -1,6 +1,6 @@
 var infowindows = [];
 $('#submit-query').click( function() {
-    $('#map').show();
+    $('#map-displays').show();
     $('#inputs').hide();
     google.maps.event.trigger(map, 'resize');
     $.ajax({
@@ -35,7 +35,7 @@ $('#submit-query').click( function() {
                     });
                 }
                 var point = new google.maps.LatLng(value['lat'], value['lng']);
-                addDumbMarker(point, value['type']);
+                addDumbMarker(point, value['time']);
             });
         },
         failure: function() {
@@ -95,8 +95,9 @@ function custom_info_window(business, marker) {
                          "<div id='siteNotice'></div>"+
                          "<a href="+business['url']+">"+business['name']+"</a><br />"+
                          "<div id='bodyContent'>"+
-                         "Rating: " + business['rating']+"<br />"+
-                         "Type: "+ categories+ "..."+
+                         "Rating: <img src='" + business['rating_img_url']+"'/><br />"+
+                         "Type: "+ categories+ "..."+"<br />"+
+                         "<button class='btn btn-primary' onclick=''>Add</button>"+
                          "</div>";
     return (new google.maps.InfoWindow({
         content: content_string

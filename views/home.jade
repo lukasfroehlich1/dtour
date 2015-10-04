@@ -3,7 +3,9 @@ html
         include head.jade
         link(rel="stylesheet", href="/css/style.css")
     body
-        div(id="map", style="display: none; height: 100%")
+        div(id="map-displays", style="display: none;")
+            div(id="location-queue" style="width: 400px; height: 70%; background-color: gray; margin-left: 100px; margin-top: 100px; position:absolute; z-index: 99")
+            div(id="map", style="height: 100%")
         div(id="inputs", class="jumbotron")
             center
                     h1 dtour
