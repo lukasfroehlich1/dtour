@@ -78,7 +78,7 @@ module.exports = {
             }
             else 
             setTimeout(function() {
-                res.json({start: start, end: end,search_coords: search_coords, locations: results});
+                res.json({start: start, end: end,search_coords: {"lat": search_coords[0], "lng": search_coords[1]}, locations: results});
             },0);
         });
     }
