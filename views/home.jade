@@ -9,10 +9,19 @@ html
             div(class="loader")
         div(id="map-displays", style="display: none;")
             div(id="location-container", style="width: 25%; height: 100%")
-                button(id="search-controller", class="btn btn-default btn-lg btn-block")
+                button(id="search-controller", class="btn btn-default btn-lg btn-block", onclick="search_side()")
                     center update search
-                button(id="stop-controller", class="btn btn-default btn-lg btn-block disabled")
+                button(id="stop-controller", class="btn btn-default btn-lg btn-block", disabled, onclick="stops_side()")
                     center pit stops
+                div(id="search-side-container", style="display: none")
+                    input(type="text", id="start_location2", class="form-control inputs2",
+                          placeholder="starting location")
+                    input(type="text", id="start_time2" class="form-control inputs2",
+                          placeholder="starting time")
+                    input(type="text", id="end_location2" class="form-control inputs2",
+                          placeholder="ending location")
+                    button(id="submit-query2", class="btn btn-default btn-lg btn-block").
+                        submit
                 div(id="pit-stop-container")
                     ul(id="location-queue", class="list-group")
                         li(class="list-group-item")
@@ -32,7 +41,6 @@ html
                     br
                     input(type="text", id="end_location" class="form-control inputs",
                           placeholder="ending location")
-                    //a(href="") advanced search 
                     br
                     button(id="submit-query", class="btn btn-default inputs").
                         submit

@@ -1,5 +1,5 @@
 html, body {
-  height: 95%;
+  height: 100%;
   margin: 0;
   padding: 0;
 }
@@ -14,6 +14,11 @@ h1, h2, h3 {
     padding-right: 10px;
 }
 
+button:disabled{
+    font-weight: bold;
+    color: black;
+}
+
 .inputs {
   width: 500px;
   font-size: 26px;
@@ -23,11 +28,24 @@ h1, h2, h3 {
 }
 
 input[type='text']{
+  font-size: 26px;
   height: 70px;
   padding: 10px;
   border: none;
   border-bottom: solid 2px #c9c9c9;
   transition: border 0.3s;
+}
+
+.inputs2 {
+    width: 100%;
+}
+
+#footer-container{
+    position: absolute;
+    width: 100%;
+    padding-bottom: 20px;
+    bottom: 0;
+    background-color: white;
 }
 
 #footer{

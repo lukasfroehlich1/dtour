@@ -1,15 +1,40 @@
 var infowindows = [];
-$('#submit-query').click( function() {
-    $('#inputs').hide();
+var allMarkers = [];
+
+function search_side() {
+    $('#search-side-container').show();
+    $('#pit-stop-container').hide();
+
+    $('#stop-controller').prop('disabled', false);
+    $('#search-controller').prop('disabled', true);
+}
+
+function stops_side() {
+    $('#search-side-container').hide();
+    $('#pit-stop-container').show();
+
+    $('#stop-controller').prop('disabled', true);
+    $('#search-controller').prop('disabled', false);
+}
+
+$('#submit-query2').click( function() {
+    $('#map-displays').hide();
     $('#loading-container').show();
+    directionsDisplay.setMap(null);
+    $.each(allMarkers, function(index, value) {
+        value.setMap(null);
+    });
+    infowindows = [];
+    allMarkers = [];
+
     $.ajax({
         url: "/api",
         method: "POST",
         dataType: "json",
         data: {
-            start_location: $('#start_location').val(),
-            start_time: $('#start_time').val(),
-            end_location: $('#end_location').val(),
+            start_location: $('#start_location2').val(),
+            start_time: $('#start_time2').val(),
+            end_location: $('#end_location2').val(),
         },
         success: function(data) {
             var start = new google.maps.LatLng(data['start']['lat'],
@@ -42,17 +67,77 @@ $('#submit-query').click( function() {
             alert('failure');
             $('#loading-container').hide();
             $('#inputs').show();
+            $('#footer-container').show();
         },
         error: function() {
             alert("Sorry could not process result yet");
             $('#loading-container').hide();
             $('#inputs').show();
+            $('#footer-container').show();
         },
     });
 });
 
+$('#submit-query').click( function() {
+    $('#inputs').hide();
+    $('#footer-container').hide();
+    $('#loading-container').show();
+    $.ajax({
+        url: "/api",
+        method: "POST",
+        dataType: "json",
+        data: {
+            start_location: $('#start_location').val(),
+            start_time: $('#start_time').val(),
+            end_location: $('#end_location').val(),
+        },
+        success: function(data) {
+            var start = new google.maps.LatLng(data['start']['lat'],
+                                               data['start']['lng']);
+            var end = new google.maps.LatLng(data['end']['lat'],
+                                             data['end']['lng']);
+
+            displayRoute(start, end);
+            $.each(data['found_locations'], function( index, value ) {
+                if ( 'business' in value )
+                {
+                    var stop = new google.maps.LatLng(value['business']['location']['coordinate']['latitude'],
+                                                      value['business']['location']['coordinate']['longitude']);
+                    allMarkers.push(addMarker(stop, value['time']));
+                    var marker = allMarkers[allMarkers.length-1];
+                    infowindows.push(custom_info_window(value['business'], value['time']));
+                    var info_window = infowindows[infowindows.length-1];
+                    marker.addListener('click', function() {
+                        $.each(infowindows, function(index, value) {
+                            value.close();
+                        });
+                        info_window.open(map, marker);
+                    });
+                }
+            });
+            $('#loading-container').hide();
+            $('#map-displays').show();
+            google.maps.event.trigger(map, 'resize');
+        },
+        failure: function() {
+            alert('failure');
+            $('#loading-container').hide();
+            $('#inputs').show();
+            $('#footer-container').show();
+        },
+        error: function() {
+            alert("Sorry could not process result yet");
+            $('#loading-container').hide();
+            $('#inputs').show();
+            $('#footer-container').show();
+        },
+    });
+});
+
+var directionsDisplay;
+
 function displayRoute(start, end) {
-    var directionsDisplay = new google.maps.DirectionsRenderer();
+    directionsDisplay = new google.maps.DirectionsRenderer();
     directionsDisplay.setMap(map);
 
     var request = {
