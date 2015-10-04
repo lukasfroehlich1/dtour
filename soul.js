@@ -47,19 +47,16 @@ calculate_middle = function(steps, dist, time){
 var legit_times = ["0700","0800","0900","1100","1200","1300","1800","1900","2000","2100"];
 
 find_next_time = function(init_time) {
-    console.log(legit_times[10]);
-    var next_time_slot = init_time;
+    var next_time_slot = Number(init_time);
     var done = false;
     while (done == false) {
         for (i=0; i<legit_times.length; i++) {
             var ltime = Number(legit_times[i]);
             if (ltime == next_time_slot) {
-                console.log(ltime);
                 return i;
-                done = true;
             }
-            next_time_slot = (next_time_slot + 1) % 2400;
         }
+        next_time_slot = (next_time_slot + 1) % 2400;
     }
     return -1;
 }
@@ -117,6 +114,7 @@ var food_time = {"0700":"breakfast",
 
 calculate_time_stop = function(steps, time) {
     var next_inc = find_next_time(time);
+    var day_inc = next_inc;
     var target_time = legit_times_s[next_inc];
     var list_of_stops = [];
     var date_num = 0;
@@ -132,9 +130,17 @@ calculate_time_stop = function(steps, time) {
         //this needs to be fixed with day
         result["day_of_week"] = 1;
         list_of_stops.push(result);
+
         //each time this mods need to increase the day by one
         next_inc = (next_inc + 1) % legit_times.length;
-        target_time += legit_times_s[next_inc];
+        day_inc++;
+        var day = parseInt(day_inc / legit_times.length);
+        console.log("day " + day);
+        target_time = legit_times_s[next_inc] + day*86400;
+
+
+
+        console.log(target_time);
     }
     console.log(list_of_stops);
     return list_of_stops;
@@ -157,6 +163,7 @@ module.exports = {
                 gmAPI.directions({origin: start, destination: end}, function(err, results){
                     console.log(err);
                     var steps = results["routes"][0]["legs"][0]["steps"];
+                    console.log(results["routes"][0]["legs"][0]["duration"]);
                     start = steps[0]["start_location"];
                     end = steps[steps.length-1]["end_location"]; 
                     search_coords = calculate_time_stop(steps, time);
