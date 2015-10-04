@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/lukasfroehlich1/dtour",
   "dependencies": {
+    "body-parser": "^1.14.1",
     "express": "^4.13.3",
     "geolib": "^2.0.18",
     "googlemaps": "^1.0.2",

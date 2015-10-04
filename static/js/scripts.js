@@ -3,11 +3,19 @@ $('#submit-query').click( function() {
     $('#inputs').hide();
     google.maps.event.trigger(map, 'resize');
     $.ajax({
-        url: "/",
-        method: "GET",
-        data: {},
+        url: "/api",
+        method: "POST",
+        dataType: "json",
+        data: {
+            start_location: $('#start_location').val(),
+            start_time: $('#start_time').val(),
+            end_location: $('#end_location').val(),
+        },
         success: function(data) {
-            //move map and load pins
+            alert(JSON.stringify(data));
+        },
+        failure: function() {
+            alert('failure');
         },
         error: function() {
             alert("Sorry could not process result yet");
