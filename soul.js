@@ -46,26 +46,127 @@ module.exports = {
         var start = req.body.start_location;
         var end = req.body.end_location;
         var time = req.body.start_time;
-        var radius = 8046;
+        var radius = 10000;
         var search_coords;
+        var found_locations = [];
         async.waterfall([
-            function get_directions(callback) {
-                var time 
-                gmAPI.directions({origin: start, destination: end }, function(err, results){
-                    console.log(err);
-                    var steps = results["routes"][0]["legs"][0]["steps"];
-                    start = steps[0]["start_location"];
-                    end = steps[steps.length-1]["end_location"]; 
-                    var dist = results["routes"][0]["legs"][0]["distance"]["value"];
-                    search_coords = calculate_middle(steps, dist);
-                    callback(null, search_coords);
-                });
+            function get_directions(callbackOrder) {
+                var time; 
+                search_coords = [
+                    {
+                        lat: '32.7150',
+                        lng: '-117.1625',
+                        type: 'breakfast',
+                        time: '0800',
+                        day_of_week: 1,
+                    },
+                    {
+                        lat: '34.0500',
+                        lng: '-118.2500',
+                        type: 'lunch',
+                        time: '1200',
+                        day_of_week: 1,
+                    },
+                    {
+                        lat: '37.7833',
+                        lng: '-122.4167',
+                        type: 'dinner',
+                        time: '1900',
+                        day_of_week: 1,
+                    }];
+                callbackOrder(null, search_coords);
             },
-            function yelp_search(coords, callback) {
-                var input = {term: "food", radius_filter: radius, ll: coords[0] + ',' + coords[1]};
-                yelp.search(input, function(error, data) {
-                    console.log(data["businesses"]);
-                    callback(null, data["businesses"][0]);
+            function search(coords, callbackOrder) {
+                async.each(coords, function(coord, callbackCoord) {
+                    var input = {term: "food", radius_filter: radius, ll: coord['lat'] + ',' + coord['lng']};
+                    //console.log("Starting checks for time: %s", coord['time']);
+                    async.waterfall([
+                        function yelp_api(callbackSearch) {
+                            yelp.search(input, function(error, data) {
+                                if (error) {
+                                    console.log(error);
+                                }
+                                //console.log("Number of business from list %d", data["businesses"].length);
+                                callbackSearch(null, data["businesses"]);
+                            });
+                        },
+                        function google_places(businesses, callbackSearch) {
+                            async.detectSeries( businesses, function(business, done) {
+                                async.waterfall([
+                                    function places_search(callbackIsOpen) {
+                                        var latlng = business['location']['coordinate']['latitude'] +","+
+                                                     business['location']['coordinate']['longitude'];
+                                        //console.log('Started running for business %s %s.', business['name'], latlng);
+                                        var params = {
+                                            location: latlng,
+                                            name: business['name'],
+                                            radius: 100,
+                                        };
+                                        gmAPI.placeSearch( params, function(err, results) {
+                                            if (err) {
+                                                console.log(err);
+                                                callbackIsOpen(null);
+                                                done(false);
+                                            }
+                                            else{
+                                            callbackIsOpen(null, results);
+                                            }
+                                        });
+                                    },
+                                    function places_details(places, callbackIsOpen) {
+                                        //console.log('Places %s', business['name']);
+                                        if( 'results' in places ){
+                                            //console.log(places['results'][0]['place_id']);
+                                            var params = {
+                                                placeid: places['results'][0]['place_id'],
+                                            };
+                                            gmAPI.placeDetails( params, function(err, results) {
+                                                if(err) {
+                                                    console.log(err);
+                                                }
+                                                //console.log(results);
+                                                if ( 'opening_hours' in results['result'] ) {
+                                                    var time_open = results['result']['opening_hours']['periods'][coord['day_of_week']];
+                                                    callbackIsOpen(null, 
+                                                                   time_open['close']['time'] > coord['time'] && time_open['open']['time'] < coord['time']);
+                                                }
+                                                else{
+                                                    callbackIsOpen(null, false);
+                                                }
+                                            });
+                                        }
+                                    }
+                                ], function(err, result){
+                                    if (err) {
+                                        console.log(err);
+                                    }
+                                    //console.log('Finished running for business %s.', business['name']);
+                                    done(result);
+                                });
+                            },
+                            function(result){
+                                if (result) {
+                                    console.log("Business for time slot %s is %s.", coord['time'], result['name']);
+                                    callbackSearch(null, result);
+                                }
+                                else {
+                                    console.log("Error did not find any valid result for time: %s", coord['time']);
+                                    callbackSearch(null);
+                                }
+                            });
+                        },
+                    ], function (err, results) {
+                        console.log("Finished calls for %s", coord['time']);
+                        coord['business'] = results;
+                        //console.log(coord);
+                        found_locations.push(coord);
+                        callbackCoord(null);
+                    });
+                }, function(err) {
+                    if (err) {
+                        console.log(err);
+                    }
+                    callbackOrder(null);
                 });
             }
         ],function (err,results) {
@@ -74,9 +175,7 @@ module.exports = {
                 res.send(err);
             }
             else 
-            setTimeout(function() {
-                res.json({start: start, end: end,search_coords: {"lat": search_coords[0], "lng": search_coords[1]}, locations: results});
-            },0);
+                res.json({start: start, end: end, found_locations: found_locations});
         });
     }
 };
