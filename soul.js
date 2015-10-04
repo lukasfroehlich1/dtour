@@ -46,17 +46,13 @@ module.exports = {
         var start = req.body.start_location;
         var end = req.body.end_location;
         var time = req.body.start_time;
-        console.log(start);
-        console.log(end);
-        console.log(time);
-        var radius = 100;
+        var radius = 10000;
         var search_coords;
         async.waterfall([
             function get_directions(callback) {
                 var time 
                 gmAPI.directions({origin: start, destination: end }, function(err, results){
                     console.log(err);
-                    console.log(results["routes"][0]["legs"][0]["steps"]);
                     var steps = results["routes"][0]["legs"][0]["steps"];
                     start = steps[0]["start_location"];
                     end = steps[steps.length-1]["end_location"]; 
@@ -68,6 +64,7 @@ module.exports = {
             function yelp_search(coords, callback) {
                 var input = {term: "food", radius_filter: radius, ll: coords[0] + ',' + coords[1]};
                 yelp.search(input, function(error, data) {
+                    console.log(data["businesses"]);
                     callback(null, data["businesses"][0]);
                 });
             }
