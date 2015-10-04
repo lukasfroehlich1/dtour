@@ -153,7 +153,7 @@ module.exports = {
         var end = req.body.end_location;
         //this time should be astring
         var time = req.body.start_time;
-        var radius = 3000;
+        var radius = 15000;
         var search_coords;
         if (!start || !end || !time) {
             return res.status("404").send("Not found");
@@ -173,7 +173,7 @@ module.exports = {
             },
             function search(coords, callbackOrder) {
                 async.each(coords, function(coord, callbackCoord) {
-                    var input = {category_filter: 'restaurants', radius_filter: radius, ll: coord['lat'] + ',' + coord['lng']};
+                    var input = {sort: 2, category_filter: 'restaurants', radius_filter: radius, ll: coord['lat'] + ',' + coord['lng']};
                     console.log("Starting checks for time: %s", coord['time']);
                     async.waterfall([
                         function yelp_api(callbackSearch) {
