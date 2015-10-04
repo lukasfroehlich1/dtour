@@ -8,29 +8,33 @@ html
                 h2 Watching Paint Dry
             div(class="loader")
         div(id="map-displays", style="display: none;")
-            div(id="location-container")
-                ul(id="location-queue", class="list-group")
-                    li(class="list-group-item")
-                        center
-                            b new search
-                    li(class="list-group-item")
-                        center
-                            b pit stops
-            div(id="map", style="height: 100%")
+            div(id="location-container", style="width: 25%; height: 100%")
+                button(id="search-controller", class="btn btn-default btn-lg btn-block")
+                    center update search
+                button(id="stop-controller", class="btn btn-default btn-lg btn-block disabled")
+                    center pit stops
+                div(id="pit-stop-container")
+                    ul(id="location-queue", class="list-group")
+                        li(class="list-group-item")
+                    button(class="btn btn-default btn-lg btn-block")
+                        center get custom url
+                    button(class="btn btn-danger btn-lg btn-block" onclick="$('#location-queue').empty();")
+                        center clear
+            div(id="map", style="width: 75%; height: 100%; float: left;")
         div(id="inputs", class="jumbotron", style="height: 100%")
             center
                     h1(style="color: #0dc5c1") dtour
                     input(type="text", id="start_location",class="form-control inputs",
-                          placeholder="Starting location")
+                          placeholder="starting location")
                     br
                     input(type="text", id="start_time" class="form-control inputs",
-                          placeholder="Starting time")
+                          placeholder="starting time")
                     br
                     input(type="text", id="end_location" class="form-control inputs",
-                          placeholder="Ending location")
+                          placeholder="ending location")
                     //a(href="") advanced search 
                     br
-                    button(id="submit-query", class="btn btn-primary inputs").
+                    button(id="submit-query", class="btn btn-default inputs").
                         submit
         script(src="/js/scripts.js")
         script(src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAl1AUh9oQiTgNrNfeLW1RIOLZyzbKXSjA&callback=initMap", async, defer)

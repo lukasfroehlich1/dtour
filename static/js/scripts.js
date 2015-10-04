@@ -24,7 +24,7 @@ $('#submit-query').click( function() {
                     var stop = new google.maps.LatLng(value['business']['location']['coordinate']['latitude'],
                                                       value['business']['location']['coordinate']['longitude']);
                     var marker = addMarker(stop, value['time']);
-                    infowindows.push(custom_info_window(value['business']));
+                    infowindows.push(custom_info_window(value['business'], value['time']));
                     var info_window = infowindows[infowindows.length-1];
                     marker.addListener('click', function() {
                         $.each(infowindows, function(index, value) {
@@ -85,13 +85,16 @@ function addDumbMarker(stoplatlng, name) {
     }));
 }
 
-function test(pkt) {
-    var json = JSON.parse(pkt);
-    $('#location-queue').append("<li class='list-group-item'><img class='thumb' src='"+json['snippet_img_url']+"'/>Hello</li>");
+function test(img, id, name, time_period) {
+    var time_val = time_period.substr(0, 1)=='0'? time_period.substr(1, 1)+":"+time_period.substr(2,4)+'AM' :
+                                                  (parseInt(time_period.substr(0, 2))-12).toString() +":"+ time_period.substr(2,4)+'PM';
+    $('#location-queue').append("<li id="+id+" class='list-group-item'><img class='thumb' src='"+img+"'/><span>"+name+"   "+time_val+"</span></li>");
 }
 
-function custom_info_window(business, marker) {
+function custom_info_window(business, time_period) {
     var categories = '';
+    var content_vals = '"'+business['image_url'] + '", "' + business['id']+ '", "' +
+                           business['name'] + '", "' + time_period + '"';
     $.each(business['categories'], function(index, value) {
         if( index > 1 ){
             categories += '';
@@ -106,10 +109,7 @@ function custom_info_window(business, marker) {
                          "<div id='bodyContent'>"+
                          "Rating: <img src='" + business['rating_img_url']+"'/><br />"+
                          "Type: "+ categories+ "..."+"<br />"+
-                         "<button class='btn btn-primary' onclick='test("+'"'+'hello'+'"'+")'>Test</button>"+
-                         //"<button class='btn btn-primary' onclick=\'function(){$(\"#location-queue\").append(<li class=\"list-group-item\">"+
-                         //"<img class=\"thumb\" src=\""+business['snippet_img_url']+
-                         //"\" /> <span class=\"thumb_text\">"+business['name']+"</span></li>);alert(\"hello\");}\'>Add</button>"+
+                         "<button class='btn btn-primary' onclick='test("+content_vals+")'>Add</button>"+
                          "</div>";
     return (new google.maps.InfoWindow({
         content: content_string
