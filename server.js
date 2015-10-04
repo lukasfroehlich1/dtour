@@ -1,4 +1,5 @@
 var express = require('express');
+var soul = require('./soul');
 var bodyParser = require('body-parser');
 var app = express();
 
@@ -19,14 +20,7 @@ router.get('/', function(req, res) {
 });
 
 router.route('/').post(function(req, res) {
-    console.log(req);
-    var start_location = req.body.start_location;
-    var end_location = req.body.end_location;
-    var start_time = req.body.start_time;
-
-    res.json({val1: start_location,
-              val2: end_location,
-              val3: start_time});
+    soul.trip(req,res);
 });
 
 app.use('/api', router);
