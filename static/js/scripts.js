@@ -1,6 +1,36 @@
 var infowindows = [];
 var allMarkers = [];
 
+// makes sure values have been inputted
+function filled_in_values(start, end, time) {
+    if (!start || !end || !time) {
+        return false;
+    }
+    else{
+        return true;
+    }
+}
+
+
+// makes sure inputted time is military
+function correct_time(string_time) {
+    if (string_time.length != '4') {
+        return false;
+    }
+
+    var int_time = parseInt(string_time);
+    if ( isNaN(int_time) ){
+        return false;
+    }
+
+    if ( int_time > 2400 || int_time < 0 ){
+        return false;
+    }
+
+    return true;
+
+}
+
 function search_side() {
     $('#search-side-container').show();
     $('#pit-stop-container').hide();
@@ -26,6 +56,23 @@ $('#submit-query2').click( function() {
     });
     infowindows = [];
     allMarkers = [];
+
+    if ( !filled_in_values($('start_location2').val(), $('#end_location2').val()), $('#start_time2').val() )
+    {
+        alert("Not all fields were inputted");
+        $('#loading-container').hide();
+        $('#inputs').show();
+        $('#footer-container').show();
+        return;
+    }
+
+    if( !correct_time($('#start_time2').val()) ) {
+        alert("Time was inputted wrong");
+        $('#loading-container').hide();
+        $('#inputs').show();
+        $('#footer-container').show();
+        return;
+    }
 
     $.ajax({
         url: "/api",
@@ -82,6 +129,27 @@ $('#submit-query').click( function() {
     $('#inputs').hide();
     $('#footer-container').hide();
     $('#loading-container').show();
+
+
+
+    if ( !filled_in_values( $('#start_location').val(), $('#end_location').val(), $('#start_time').val() ) )
+    {
+        alert("Not all fields were inputted");
+        $('#loading-container').hide();
+        $('#inputs').show();
+        $('#footer-container').show();
+        return;
+    }
+
+    if( !correct_time($('#start_time').val()) ) {
+        alert("Time was inputted wrong");
+        $('#loading-container').hide();
+        $('#inputs').show();
+        $('#footer-container').show();
+        return;
+    }
+
+
     $.ajax({
         url: "/api",
         method: "POST",

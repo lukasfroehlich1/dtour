@@ -77,8 +77,8 @@ time_coords = function(steps, time, target_time, date_num) {
     var duration = convert_hour2sec(time);
     for (i=0; i<steps.length; i++) {
         duration += steps[i]["duration"]["value"];
-        console.log("duration " + duration);
-        console.log("target_time " + target_time);
+        //console.log("duration " + duration);
+        //console.log("target_time " + target_time);
         if (duration > target_time) {
             duration -= steps[i]["duration"]["value"];
             var cur_step = steps[i];
@@ -162,7 +162,14 @@ module.exports = {
         async.waterfall([
             function get_directions(callbackOrder) {
                 gmAPI.directions({origin: start, destination: end}, function(err, results){
-                    console.log(err);
+                    if ( err ) {
+                        console.log('Error'+err);
+                    }
+                    if ( results['status'] == 'NOT_FOUND' )
+                    {
+                        console.log("Location not found" );
+                        return res.status("404").send("Not found");
+                    }
                     var steps = results["routes"][0]["legs"][0]["steps"];
                     console.log(results["routes"][0]["legs"][0]["duration"]);
                     start = steps[0]["start_location"];
@@ -179,6 +186,7 @@ module.exports = {
                         function yelp_api(callbackSearch) {
                             yelp.search(input, function(error, data) {
                                 if (error) {
+                                    console.log('Error'+err);
                                     console.log(error);
                                 }
                                 console.log("Number of business from list %s %d.", coord['time'], data['businesses'].length);
@@ -187,9 +195,10 @@ module.exports = {
                         },
                     ], function (err, results) {
                         if (err) {
+                            console.log('Error'+err);
                             console.log(err);
                         }
-                        console.log("Finished calls for %s. Selected %s.", coord['time'], 'lol');
+                        console.log("Finished calls for %s. Selected %s.", coord['time'], results['name']);
                         coord['business'] = results;
                         //console.log(coord);
                         found_locations.push(coord);
@@ -197,14 +206,14 @@ module.exports = {
                     });
                 }, function(err) {
                     if (err) {
-                        console.log(err);
+                        console.log('Error'+err);
                     }
                     callbackOrder(null);
                 });
             }
         ],function (err,results) {
             if (err) {
-                console.log(err);
+                console.log('Error'+err);
                 res.send(err);
             }
             else 
