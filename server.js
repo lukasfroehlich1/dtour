@@ -4,6 +4,37 @@ var bodyParser = require('body-parser');
 var cfenv = require('cfenv');
 var favicon = require('serve-favicon');
 
+var http = require('http');
+var path = require('path');
+var express = require('express');
+var hogan = require('hogan-express');
+var mysql = require('mysql');
+var fs = require('fs');
+
+var port = (process.env.VCAP_APP_PORT || 3000);
+var host = (process.env.VCAP_APP_HOST || 'localhost');
+
+// check if application is being run in cloud environment
+if (process.env.VCAP_SERVICES) {
+  var services = JSON.parse(process.env.VCAP_SERVICES);
+
+  // look for a service starting with 'mysql'
+  for (var svcName in services) {
+    if (svcName.match(/^mysql/)) {
+      var mysqlCreds = services[svcName][0]['credentials'];
+      var db = mysql.createConnection({
+        host: mysqlCreds.host,
+        port: mysqlCreds.port,
+        user: mysqlCreds.user,
+        password: mysqlCreds.password,
+        database: mysqlCreds.name
+      });
+
+      createTable();
+    }
+  }
+}
+
 var app = express();
 app.use(favicon(__dirname + '/static/images/favicon.ico'));
 app.use(bodyParser.urlencoded({ extended: true }));
