@@ -198,6 +198,7 @@ module.exports = {
                             console.log('Error'+err);
                             console.log(err);
                         }
+                        console.log(results);
                         console.log("Finished calls for %s. Selected %s.", coord['time'], results['name']);
                         coord['business'] = results;
                         //console.log(coord);
