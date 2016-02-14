@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/lukasfroehlich1/dtour.git"
+    "url": "git+https://github.com/lukasfroehlich1/dtour.git"
   },
   "author": "",
   "license": "ISC",
@@ -21,15 +21,17 @@
     "async": "^1.4.2",
     "body-parser": "^1.14.1",
     "cfenv": "^1.0.3",
-    "express": "^4.13.3",
+    "express": "^4.13.4",
     "geolib": "^2.0.18",
     "google-places": "0.0.2",
     "googlemaps": "^1.0.2",
+    "jade": "^1.11.0",
     "polyline": "^0.2.0",
     "q": "^1.4.1",
     "request": "^2.64.0",
     "requests": "^0.1.7",
     "serve-favicon": "^2.3.0",
     "yelp": "^0.2.0"
-  }
+  },
+  "devDependencies": {}
 }
