@@ -5,7 +5,6 @@ var cfenv = require('cfenv');
 //var favicon = require('serve-favicon');
 
 var app = express();
-//app.use(favicon(__dirname + '/static/images/favicon.ico'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 

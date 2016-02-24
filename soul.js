@@ -6,8 +6,8 @@ var request = require('request');
 var yelp = require("yelp").createClient({
   consumer_key: "BRao3_-71k3UGVBQAOCHAg", 
   consumer_secret: "v57ivrvRCFpmjyoHrAVvyNMsBK8",
-  token: "G77q0HeRY32ONNVC2pQPh8fMMSYdVrAd",
-  token_secret: "klbPKxqjk1a_a3My-IoE7rkl_qE"
+  token: "EuzodMhhuFuGpIo1FMHhd2jYAwF6N6jB",
+  token_secret: "IqaJ8V5Z-nkGcy8P-dFI_W8gXuY"
 });
 
 var gapi_key = 'AIzaSyAl1AUh9oQiTgNrNfeLW1RIOLZyzbKXSjA';
@@ -189,8 +189,14 @@ module.exports = {
                                     console.log('Error'+err);
                                     console.log(error);
                                 }
-                                console.log("Number of business from list %s %d.", coord['time'], data['businesses'].length);
-                                callbackSearch(null, data["businesses"][0]);
+                                if (data['businesses'].length == 0) {
+                                    console.log("No Business' Found");
+                                    callbackSearch(null, null);
+                                }
+                                else {
+                                    console.log("Number of business from list %s %d.", coord['time'], data['businesses'].length);
+                                    callbackSearch(null, data["businesses"][0]);
+                                }
                             });
                         },
                     ], function (err, results) {
@@ -198,7 +204,7 @@ module.exports = {
                             console.log('Error'+err);
                             console.log(err);
                         }
-                        console.log(results);
+                        //console.log(results);
                         console.log("Finished calls for %s. Selected %s.", coord['time'], results['name']);
                         coord['business'] = results;
                         //console.log(coord);
